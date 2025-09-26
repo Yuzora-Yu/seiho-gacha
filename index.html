@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>議事録ピックアップガチャ</title>
+<title>議事録ピックアップガチャ（復刻）</title>
 <link rel="preconnect" href="https://unpkg.com">
 <style>
   :root{
@@ -42,7 +42,7 @@
   #stage .hint{ position:absolute; bottom:10px; left:0; right:0; text-align:center; color:#c7d2e4; opacity:.8; font-size:12px; }
   #btnSkipAll{ position:absolute; top:10px; right:10px; z-index:5; display:none; font-size:12px; }
 
-  /* （旧）UR演出は未使用だが残置 */
+  /* （旧）UR演出は未使用だが残置（保険） */
   .beam{ position:absolute; inset:-20% 35% -40% 35%; opacity:0; pointer-events:none; }
   .beam.show{ display:none !important; }
   .rays{ position:absolute; inset:-20% -20%; opacity:0; pointer-events:none; }
@@ -148,11 +148,11 @@
     box-shadow: 0 12px 40px rgba(255,64,96,.22) inset, 0 8px 26px rgba(255,64,96,.28);
   }
 
-  /* モーダル（排出確率） */
+  /* モーダル（排出確率/アルバム） */
   .modal{ position:fixed; inset:0; display:none; place-items:center; background: rgba(0,0,0,.55); z-index:10; }
   .modal.show{ display:grid; }
   .sheet{
-    width:min(760px, 94vw);
+    width:min(900px, 94vw);
     max-height: 85vh;
     overflow:auto;
     background:#0f1424; border:1px solid var(--border);
@@ -176,6 +176,7 @@
   <div class="toolbar">
     <button class="btn" id="btnSingle">単発（1回）</button>
     <button class="btn primary" id="btnTen">10連</button>
+    <button class="btn" id="btnAlbum">アルバム</button>
     <button class="btn" id="btnReset">クリア</button>
     <button class="btn" id="btnRates">排出確率</button>
   </div>
@@ -215,7 +216,7 @@
       <button class="btn" id="btnTweet">Tweet（結果を共有）</button>
     </div>
     <p class="note">※画像は自動添付できないため、保存後にツイート画面で添付してください。</p>
-    <p class="note">※本ガチャは個人の趣味制作であり、実在の人物・団体とは一切関係ありません。</p>
+    <p class="note">※本ガチャは個人の趣味制作であり、公式とは一切関係ありません。</p>
   </div>
 </main>
 
@@ -237,6 +238,27 @@
   </div>
 </div>
 
+<!-- アルバム（コレクション）モーダル -->
+<div class="modal" id="albumModal">
+  <div class="sheet">
+    <span class="close" id="closeAlbum">×</span>
+    <h2>アルバム / コレクション</h2>
+    <div id="albumStats" style="margin:6px 0 10px;color:#b9c4d4;"></div>
+    <div class="toolbar" style="margin:8px 0 10px;">
+      <select id="albumFilter">
+        <option value="ALL">すべて</option>
+        <option value="EX">EX</option>
+        <option value="UR">UR</option>
+        <option value="SSR">SSR</option>
+        <option value="SR">SR</option>
+        <option value="R">R</option>
+      </select>
+      <button class="btn" id="btnResetAlbum">進捗リセット（端末内）</button>
+    </div>
+    <div class="grid" id="albumGrid"></div>
+  </div>
+</div>
+
 <script>
 /* ---- ラインナップ＆確率 ---- */
 const RARITY = {
@@ -247,7 +269,7 @@ const RARITY = {
   "EX":  { rate: 0.005, color:"#ff4060", name:"EX" }    // 0.5%
 }; // 合計 = 1.0
 
-/* ① 抽選リスト（「発言」発言者 で1項目） */
+/* 抽選リスト（「発言」発言者） */
 const POOL = [
   // R
   { name:"「おれんちカメラ２３０個ついてるから」ヤマグチ", rarity:"R", icon:"💬" },
@@ -291,10 +313,10 @@ const POOL = [
   { name:"「幸せって忘れることなんだと思う」ヤマグチ",            rarity:"UR", icon:"👑" },
   { name:"「俺いないんだから、やらなきゃいいじゃん」アオスガ",  rarity:"UR", icon:"👑" },
 
-  // EX
-  { name:"「アオスガと共に生きていけば？」クドヨメ",              rarity:"EX", icon:"👑" },
-  { name:"「もうカミナカと結婚すれば？」クドヨメ",                rarity:"EX", icon:"👑" },
-  { name:"「ゃだょ～、ﾕﾙｻﾅｲﾖ～　ぶちころすよ？」ナラ",            rarity:"EX", icon:"👑" },
+  // EX（アイコンを🧧に変更）
+  { name:"「アオスガと共に生きていけば？」クドヨメ",              rarity:"EX", icon:"🧧" },
+  { name:"「もうカミナカと結婚すれば？」クドヨメ",                rarity:"EX", icon:"🧧" },
+  { name:"「ゃだょ～、ﾕﾙｻﾅｲﾖ～　ぶちころすよ？」ナラ",            rarity:"EX", icon:"🧧" },
 ];
 
 /* ---- 汎用 ---- */
@@ -646,6 +668,9 @@ function showAllResults(items){
 
   headline.textContent =
     `${now()}｜最高:${top.rarity}「${top.name}」｜EX:${counts.EX} / UR:${counts.UR} / SSR:${counts.SSR} / SR:${counts.SR} / R:${counts.R}`;
+
+  /* ▼ここでローカル保存 */
+  recordResults(items);
 }
 
 /* ---- 保存/Tweet ---- */
@@ -676,6 +701,10 @@ document.getElementById("btnReset").addEventListener("click", ()=>{
   stageHost.innerHTML = ""; hint.textContent = "";
   clearResultsView(); btnSkipAll.style.display = "none";
 });
+document.getElementById("btnAlbum").addEventListener("click", ()=>{
+  renderAlbum(document.getElementById("albumFilter").value);
+  albumModal.classList.add("show");
+});
 
 /* ---- 排出確率モーダル ---- */
 const modal = document.getElementById("modal");
@@ -687,7 +716,7 @@ document.getElementById("btnRates").addEventListener("click", ()=>{
     tr.innerHTML = `<td style="color:${RARITY[k].color};font-weight:700">${k}</td><td>${(RARITY[k].rate*100).toFixed(1)}%</td>`;
     rb.appendChild(tr);
   }
-  // ② EXアイテムは伏せ字「？？？？？」で表示
+  // EXアイテムは伏せ字「？？？？？」で表示
   const lb = document.getElementById("listBody"); lb.innerHTML = "";
   for(const it of POOL){
     const displayName = (it.rarity === "EX") ? "？？？？？" : it.name;
@@ -699,6 +728,108 @@ document.getElementById("btnRates").addEventListener("click", ()=>{
 });
 document.getElementById("closeModal").addEventListener("click", ()=> modal.classList.remove("show"));
 modal.addEventListener("click", (e)=>{ if(e.target===modal) modal.classList.remove("show"); });
+
+/* ===== ローカル保存：コレクション/回数 ===== */
+const STORE_KEY = "gacha_progress_v1";
+function defaultState(){
+  return {
+    pulls: 0,
+    sessions: 0,
+    firstPlayedAt: null,
+    lastPlayedAt: null,
+    items: {}
+  };
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return defaultState();
+    const st = JSON.parse(raw);
+    return Object.assign(defaultState(), st, { items: Object.assign({}, st.items||{}) });
+  }catch(e){ return defaultState(); }
+}
+function saveState(st){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(st)); }catch(e){}
+}
+
+/* 引いた結果を保存（1ガチャ単位） */
+function recordResults(items){
+  const st = loadState();
+  const nowIso = new Date().toISOString();
+  if(!st.firstPlayedAt) st.firstPlayedAt = nowIso;
+  st.lastPlayedAt = nowIso;
+  st.sessions += 1;
+  st.pulls += items.length;
+  for(const it of items){
+    const key = it.name;
+    if(!st.items[key]){
+      st.items[key] = { name: it.name, rarity: it.rarity, count: 0, firstAt: null, lastAt: null };
+    }
+    st.items[key].count += 1;
+    if(!st.items[key].firstAt) st.items[key].firstAt = nowIso;
+    st.items[key].lastAt = nowIso;
+  }
+  saveState(st);
+}
+
+/* コレクション統計 */
+function collectionStats(){
+  const st = loadState();
+  const totalByR = {R:0,SR:0,SSR:0,UR:0,EX:0};
+  const haveByR  = {R:0,SR:0,SSR:0,UR:0,EX:0};
+  for(const p of POOL){
+    totalByR[p.rarity]++;
+    if(st.items[p.name]?.count>0){ haveByR[p.rarity]++; }
+  }
+  const totalKinds = POOL.length;
+  const haveKinds  = Object.values(haveByR).reduce((a,b)=>a+b,0);
+  const rate = (haveKinds/totalKinds*100).toFixed(1);
+  return { st, totalByR, haveByR, totalKinds, haveKinds, rate };
+}
+
+/* アルバム描画 */
+function renderAlbum(filter="ALL"){
+  const { st, totalByR, haveByR, totalKinds, haveKinds, rate } = collectionStats();
+  const statsEl = document.getElementById("albumStats");
+  statsEl.textContent =
+    `総カード種 ${haveKinds}/${totalKinds}（${rate}%）｜総枚数 ${st.pulls}｜プレイ回数 ${st.sessions}`;
+
+  const grid = document.getElementById("albumGrid");
+  grid.innerHTML = "";
+
+  const list = POOL.filter(p => filter==="ALL" ? true : p.rarity===filter);
+
+  for(const p of list){
+    const owned = !!st.items[p.name]?.count;
+    const ct = st.items[p.name]?.count || 0;
+
+    // EXは未所持なら名前を伏せる
+    const title = (p.rarity==="EX" && !owned) ? "？？？？？" : p.name;
+
+    const el = document.createElement("div");
+    el.className = `item ${p.rarity}`;
+    el.style.opacity = owned ? 1 : 0.55;
+    el.innerHTML = `
+      <div class="icon">${p.icon || "🎴"}</div>
+      <div class="name">[${p.rarity}] ${title}</div>
+      <div class="rarityBar"></div>
+      <div style="font-size:11px;color:#9fb1c8;margin-top:6px;">${owned ? `所持枚数：${ct}` : `未所持`}</div>
+    `;
+    grid.appendChild(el);
+  }
+}
+
+/* アルバムUI */
+const albumModal = document.getElementById("albumModal");
+document.getElementById("closeAlbum").addEventListener("click", ()=> albumModal.classList.remove("show"));
+albumModal.addEventListener("click", (e)=>{ if(e.target===albumModal) albumModal.classList.remove("show"); });
+document.getElementById("albumFilter").addEventListener("change", (e)=>{ renderAlbum(e.target.value); });
+document.getElementById("btnResetAlbum").addEventListener("click", ()=>{
+  if(confirm("端末内のコレクション進捗をリセットします。よろしいですか？")){
+    localStorage.removeItem(STORE_KEY);
+    renderAlbum(document.getElementById("albumFilter").value);
+  }
+});
 </script>
 </body>
 </html>
