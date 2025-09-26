@@ -827,6 +827,7 @@ function renderAlbum(filter="ALL"){
       <div style="font-size:11px;color:#9fb1c8;margin-top:6px;">${owned ? `所持枚数：${ct}` : `未所持`}</div>
     `;
     grid.appendChild(el);
+    applyMarqueeIfOverflow(el);
   }
 }
 
@@ -880,6 +881,7 @@ function buildAlbumCapture(filter="ALL"){
       </div>
     `;
     grid.appendChild(el);
+    applyMarqueeIfOverflow(el);
   }
 
   return host;
