@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>オーイシガチャ -SSA単独記念ピックアップ-</title>
+<title>議事録ピックアップガチャ</title>
 <link rel="preconnect" href="https://unpkg.com">
 <style>
   :root{
@@ -42,22 +42,10 @@
   #stage .hint{ position:absolute; bottom:10px; left:0; right:0; text-align:center; color:#c7d2e4; opacity:.8; font-size:12px; }
   #btnSkipAll{ position:absolute; top:10px; right:10px; z-index:5; display:none; font-size:12px; }
 
-  /* 旧UR演出（未使用だが残置） */
-  .beam{ position:absolute; inset:-20% 35% -40% 35%; opacity:0; pointer-events:none;
-         background: linear-gradient(180deg, rgba(255,255,255,.0) 0%, rgba(255,255,255,.85) 40%, rgba(255,255,255,.0) 100%),
-                     repeating-linear-gradient( to bottom,
-                       rgba(255,0,120,.35),rgba(255,0,120,.35) 8px,
-                       rgba(255,170,0,.35) 8px, rgba(255,170,0,.35) 16px,
-                       rgba(0,220,255,.35) 16px, rgba(0,220,255,.35) 24px,
-                       rgba(0,230,174,.35) 24px, rgba(0,230,174,.35) 32px);
-         filter: blur(2px); mix-blend-mode: screen; transform: scaleY(0.3); }
+  /* （旧）UR演出は未使用だが残置 */
+  .beam{ position:absolute; inset:-20% 35% -40% 35%; opacity:0; pointer-events:none; }
   .beam.show{ display:none !important; }
-  .rays{ position:absolute; inset:-20% -20%; opacity:0; pointer-events:none;
-         background: conic-gradient(from 0deg,
-           rgba(255,216,112,.0) 0deg, rgba(255,216,112,.7) 6deg, rgba(255,216,112,.0) 12deg,
-           rgba(0,227,174,.0) 12deg, rgba(0,227,174,.7) 18deg, rgba(0,227,174,.0) 24deg,
-           rgba(0,212,255,.0) 24deg, rgba(0,212,255,.7) 30deg, rgba(0,212,255,.0) 36deg);
-         mix-blend-mode: screen; filter: blur(1px); }
+  .rays{ position:absolute; inset:-20% -20%; opacity:0; pointer-events:none; }
   .rays.show{ display:none !important; }
 
   /* カード（3Dめくり） */
@@ -85,10 +73,10 @@
   .glow{ position:absolute; inset:-2px; border-radius:16px; pointer-events:none; mix-blend-mode:screen; opacity:.85; }
   .R  .glow{ background: radial-gradient(80% 60% at 50% -10%, rgba(86,204,242,.30), transparent 60%); }
   .SR .glow{ background: radial-gradient(80% 60% at 50% -10%, rgba(193,168,255,.38), transparent 60%); }
-  .SSR.glowPulse, .UR.glowPulse, .EX.glowPulse { animation: glow 1.8s ease-in-out infinite; }
   .SSR .glow{ background: radial-gradient(80% 60% at 50% -10%, rgba(255,216,112,.45), transparent 60%); }
   .UR  .glow{ background: radial-gradient(80% 60% at 50% -10%, rgba(0,227,174,.65), transparent 60%); }
   .EX  .glow{ background: radial-gradient(80% 60% at 50% -10%, rgba(255,64,96,.55), transparent 60%); }
+  .SSR.glowPulse, .UR.glowPulse, .EX.glowPulse { animation: glow 1.8s ease-in-out infinite; }
   @keyframes glow{ 0%,100%{opacity:.7} 50%{opacity:1} }
 
   /* 特殊演出（表にする前） */
@@ -183,8 +171,8 @@
 </head>
 <body id="shakeHost">
 <header>
-  <h1>オーイシガチャ -SSA単独記念ピックアップ-</h1>
-  <p>祝・SSA単独2DAYS開催！キミもオーイシにならないか？</p>
+  <h1>議事録ピックアップガチャ（復刻）</h1>
+  <p>あの頃の思い出が蘇る…2019年前後の迷言を復刻ピックアップ！</p>
   <div class="toolbar">
     <button class="btn" id="btnSingle">単発（1回）</button>
     <button class="btn primary" id="btnTen">10連</button>
@@ -227,7 +215,7 @@
       <button class="btn" id="btnTweet">Tweet（結果を共有）</button>
     </div>
     <p class="note">※画像は自動添付できないため、保存後にツイート画面で添付してください。</p>
-    <p class="note">※本ガチャは個人の趣味制作であり、公式とは一切関係ありません。</p>
+    <p class="note">※本ガチャは個人の趣味制作であり、実在の人物・団体とは一切関係ありません。</p>
   </div>
 </main>
 
@@ -250,7 +238,7 @@
 </div>
 
 <script>
-/* ---- ラインナップ＆確率（EX追加・UR調整） ---- */
+/* ---- ラインナップ＆確率 ---- */
 const RARITY = {
   "R":   { rate: 0.52,  color:"#56ccf2", name:"R" },
   "SR":  { rate: 0.35,  color:"#c1a8ff", name:"SR" },
@@ -259,31 +247,54 @@ const RARITY = {
   "EX":  { rate: 0.005, color:"#ff4060", name:"EX" }    // 0.5%
 }; // 合計 = 1.0
 
+/* ① 抽選リスト（「発言」発言者 で1項目） */
 const POOL = [
-  { name:"メガネ", rarity:"R",   icon:"👓" },
-  { name:"バナナ", rarity:"R",   icon:"🍌" },
-  { name:"マイク", rarity:"R",   icon:"🎤" },
-  { name:"ギター", rarity:"R",   icon:"🎸" },
-  { name:"カレーライス", rarity:"R", icon:"🍛" },
+  // R
+  { name:"「おれんちカメラ２３０個ついてるから」ヤマグチ", rarity:"R", icon:"💬" },
+  { name:"「１係はセ・パ両リーグあるから」ガク・イトウ",     rarity:"R", icon:"💬" },
+  { name:"「昼でもいいですか？」シンジョウ",                   rarity:"R", icon:"💬" },
+  { name:"「言いたくて言いたくて、ふるえる」マツオカ",         rarity:"R", icon:"💬" },
+  { name:"「それ、けっこういいしまむらですね」マツオカ",       rarity:"R", icon:"💬" },
+  { name:"「カミナカ（頭部）あんしんパッド」クドウ",           rarity:"R", icon:"💬" },
+  { name:"「逃げるはスガだが、役に立つ」クラモチ",             rarity:"R", icon:"💬" },
+  { name:"「（あたまの）クリニック紹介するのサ」アオスガ",     rarity:"R", icon:"💬" },
+  { name:"「白黒ならいける、でも4Kはむり」イチツカ",           rarity:"R", icon:"💬" },
 
-  { name:"オ", rarity:"SR", icon:"🟥" },
-  { name:"ー", rarity:"SR", icon:"🟥" },
-  { name:"イ", rarity:"SR", icon:"🟥" },
-  { name:"シ", rarity:"SR", icon:"🟥" },
-  { name:"マ", rarity:"SR", icon:"🟥" },
-  { name:"サ", rarity:"SR", icon:"🟥" },
-  { name:"ヨ", rarity:"SR", icon:"🟥" },
+  // SR
+  { name:"「アポカリプス工藤」クドウ",                 rarity:"SR", icon:"🗯️" },
+  { name:"「校長 カミナカ」",                           rarity:"SR", icon:"🗯️" },
+  { name:"「MBY \"ミルクボーイ山田\"」キチセイ",        rarity:"SR", icon:"🗯️" },
+  { name:"「誘ってネぇし」ナラ",                        rarity:"SR", icon:"🗯️" },
+  { name:"「トマト嫌いなんだって、子供かよ」イチツカ",  rarity:"SR", icon:"🗯️" },
+  { name:"「おっぺー」ヤマグチ",                        rarity:"SR", icon:"🗯️" },
+  { name:"「昨日調子よかったよねー」ナラ",               rarity:"SR", icon:"🗯️" },
+  { name:"「ナルシストゾーン」オバラ",                  rarity:"SR", icon:"🗯️" },
+  { name:"「何人泣かせたの？」ナラ",                    rarity:"SR", icon:"🗯️" },
 
-  { name:"オーマイゴシゴシ", rarity:"SSR", icon:"✨" },
-  { name:"オーイシナカヨシ", rarity:"SSR", icon:"✨" },
-  { name:"OxT", rarity:"SSR", icon:"🎵" },
-  { name:"Sound Schedule", rarity:"SSR", icon:"🎶" },
-  { name:"大石昌良", rarity:"SSR", icon:"🌟" },
+  // SSR
+  { name:"「さそってねンだ㋻」ナラ",                           rarity:"SSR", icon:"✨" },
+  { name:"「本能が、本能を發していない。」カミナカ",            rarity:"SSR", icon:"✨" },
+  { name:"「どっちもいっしょっす」ノムノム",                    rarity:"SSR", icon:"✨" },
+  { name:"「ばぶーだよ」ナラ",                                  rarity:"SSR", icon:"✨" },
+  { name:"「何でこの距離でこの笑顔なの？」オバラ",              rarity:"SSR", icon:"✨" },
+  { name:"「イチのこと見ないでよ～あんまり」イチツカ",          rarity:"SSR", icon:"✨" },
+  { name:"「基本だろ」ヨシザワ",                                rarity:"SSR", icon:"✨" },
+  { name:"「楽しみましょう」オオニシ",                          rarity:"SSR", icon:"✨" },
 
-  { name:"オーイシマサヨシ", rarity:"UR", icon:"🧑‍🎤" },
+  // UR
+  { name:"「〇〇に、弱いコロナを与えたい」ヨシザワ",            rarity:"UR", icon:"👑" },
+  { name:"「○○は所詮デコイ」アオスガ",                          rarity:"UR", icon:"👑" },
+  { name:"「ハァーイ！チャァーン！バブー！恫勝です。」ヤマグチ", rarity:"UR", icon:"👑" },
+  { name:"「食べてみたら蜘蛛の巣も甘いかもしれない」カミナカ",  rarity:"UR", icon:"👑" },
+  { name:"「ゃだょー、ュるさなぃょー」ナラ",                    rarity:"UR", icon:"👑" },
+  { name:"「釈迦に説法なんだけど」カミナカ",                      rarity:"UR", icon:"👑" },
+  { name:"「幸せって忘れることなんだと思う」ヤマグチ",            rarity:"UR", icon:"👑" },
+  { name:"「俺いないんだから、やらなきゃいいじゃん」アオスガ",  rarity:"UR", icon:"👑" },
 
-  /* ★ EX（0.5%）：義務わらのマサヨシ */
-  { name:"義務わらのマサヨシ", rarity:"EX", icon:"👑" },
+  // EX
+  { name:"「アオスガと共に生きていけば？」クドヨメ",              rarity:"EX", icon:"👑" },
+  { name:"「もうカミナカと結婚すれば？」クドヨメ",                rarity:"EX", icon:"👑" },
+  { name:"「ゃだょ～、ﾕﾙｻﾅｲﾖ～　ぶちころすよ？」ナラ",            rarity:"EX", icon:"👑" },
 ];
 
 /* ---- 汎用 ---- */
@@ -642,7 +653,7 @@ document.getElementById("btnSave").addEventListener("click", async ()=>{
   const target = document.getElementById("resultCard");
   const canvas = await html2canvas(target,{scale:2,backgroundColor:"#0b0f1b"});
   const a = document.createElement("a");
-  a.download = `oishi_gacha_result_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.png`;
+  a.download = `gijiroku_gacha_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.png`;
   a.href = canvas.toDataURL("image/png"); a.click();
 });
 document.getElementById("btnTweet").addEventListener("click", ()=>{
@@ -651,8 +662,7 @@ document.getElementById("btnTweet").addEventListener("click", ()=>{
   const top = highestItem(items);
   const text = [
     `${top.rarity}「${top.name}」を引いたよ！`,
-    `あなたもオーイシガチャにチャレンジしてみて！！`,
-    `#オーイシマサヨシ #オーイシSSA #オーイシガチャ`,
+    `#議事録ガチャ で君も回してみて！`,
     location.href
   ].join("\n");
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,"_blank");
@@ -670,16 +680,19 @@ document.getElementById("btnReset").addEventListener("click", ()=>{
 /* ---- 排出確率モーダル ---- */
 const modal = document.getElementById("modal");
 document.getElementById("btnRates").addEventListener("click", ()=>{
+  // 比率表
   const rb = document.getElementById("rateBody"); rb.innerHTML = "";
   for(const k of rankOrder){
     const tr = document.createElement("tr");
     tr.innerHTML = `<td style="color:${RARITY[k].color};font-weight:700">${k}</td><td>${(RARITY[k].rate*100).toFixed(1)}%</td>`;
     rb.appendChild(tr);
   }
+  // ② EXアイテムは伏せ字「？？？？？」で表示
   const lb = document.getElementById("listBody"); lb.innerHTML = "";
   for(const it of POOL){
+    const displayName = (it.rarity === "EX") ? "？？？？？" : it.name;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td style="color:${RARITY[it.rarity].color}">${it.rarity}</td><td>${it.name}</td>`;
+    tr.innerHTML = `<td style="color:${RARITY[it.rarity].color}">${it.rarity}</td><td>${displayName}</td>`;
     lb.appendChild(tr);
   }
   modal.classList.add("show");
