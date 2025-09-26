@@ -713,8 +713,10 @@ document.getElementById("btnReset").addEventListener("click", ()=>{
   clearResultsView(); btnSkipAll.style.display = "none";
 });
 document.getElementById("btnAlbum").addEventListener("click", ()=>{
-  renderAlbum(document.getElementById("albumFilter").value);
-  albumModal.classList.add("show");
+  albumModal.classList.add("show"); // 先に見える状態にする
+  requestAnimationFrame(()=>{        // レイアウト確定を1フレ待つ
+    renderAlbum(document.getElementById("albumFilter").value);
+  });
 });
 
 /* ---- 排出確率モーダル ---- */
